@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { hash } from 'bcrypt'
 
 const userSchema = new mongoose.Schema({
     email:{
@@ -21,6 +22,13 @@ const userSchema = new mongoose.Schema({
 }, {
     timestamps:true
 });
+
+//has user password
+userSchema.pre('save', async function(next) {
+    const hashedPassword =  await hash(this.password, 10)
+    this.password = hashedPassword;
+    next();
+})
 
 
 const User = mongoose.model('User', userSchema);
