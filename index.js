@@ -1,6 +1,7 @@
 import express from 'express';
 import dbConnect from './utils/db.js';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import authRoutes from './routes/AuthRoutes.js';
 
 
@@ -19,8 +20,37 @@ app.use(express.json())
 dbConnect();
 
 
-//routes
 
+//allow Cros-Origin Request
+//allow CORS Origins
+const whiteList = [process.env.FRONT_END_URL];
+
+const corsOptions = {
+    origin: function(origin, callback) {
+        if(!origin){//for bypassing postman req with  no origin
+            return callback(null, true);
+        }
+
+        if (whiteList.includes(origin)) {
+            callback(null, true);
+        }else{
+            callback(new Error('Cors Error'));
+        }
+    },
+    credentials:true,
+}
+
+
+app.use(cors(corsOptions));
+app.use(cors({
+    origin: process.env.FRONT_END_URL,
+    credentials: true,
+}))
+
+
+
+
+//routes
 app.use('/api/auth', authRoutes);
 
 
@@ -30,12 +60,15 @@ app.use((err, req, res, next) =>{
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Internal Server Error';
 
-    return res.status(statusCode).json({
-        success:false,
+    res.status(statusCode).json({
+        "success":false,
         statusCode,
         message
     });
 });
+
+
+
 
 //conect to port 
 const PORT = process.env.PORT;
