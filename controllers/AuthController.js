@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import { error } from "../utils/errorHandler.js";
-import jwt from 'jsonwebtoken';
 import generateJWT from "../utils/jwtoken.js";
+import { v4 as uuidv4 } from 'uuid';
 
 //register new user
 const register = async (req, res, next) =>{
@@ -41,6 +41,10 @@ const register = async (req, res, next) =>{
 const login = async (req, res, next) =>{
 
     const { email, password:ps } = req.body;
+
+    if (!email || !ps) {
+        return next(error(400, 'All fields are required'));
+    }
 
     //verify if user exists
     const findUser = await User.findOne({email});
@@ -87,6 +91,71 @@ const login = async (req, res, next) =>{
 
 
 
+const google = async(req,res, next) =>{
+
+    const { email, username } = req.body;
+
+
+    try {
+
+        //verify if user exists
+        const findUser = await User.findOne({email});
+
+        
+        //if user is found return with token
+        if (findUser) {
+            const token = generateJWT(findUser._id);
+            const {password, __v, ...rest} = findUser._doc;
+            const user = {...rest, token};
+
+            return  res.json({
+                success:true,
+                data:user,
+                status:200
+            });
+
+        };
+
+        
+        //generate random passowrd
+        const randomPassword = `${Date.now()}${Math.random().toString(36)}`;
+
+        const randomString = uuidv4().split('-')[0];
+        const uniqUsername = `${username.split(" ")[0].toLowerCase()}-${randomString}`;
+
+
+        const newUser = new User({...req.body, password:randomPassword, username:uniqUsername});
+
+        const request = await newUser.save(); //save user
+
+        //remove password and __v atribute from user object
+        const {password, __v, ...rest} = request._doc;
+
+
+        //add atribute token to created user
+        const token = generateJWT(request._id);
+        const user = {...rest, token};
+
+        //send response
+        res.json({
+            success:true,
+            data:user,
+            status:201
+        });
+
+
+        
+    } catch (error) {
+        return next(error);
+    }
+
+
+
+    
+}
+
+
+
 
 const logout = (req, res, next) =>{
     res.send('Hola soy logout');
@@ -94,4 +163,4 @@ const logout = (req, res, next) =>{
 
 
 
-export { login, register, logout };
+export { login, register, logout, google };

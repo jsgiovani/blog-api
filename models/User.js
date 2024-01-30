@@ -19,6 +19,12 @@ const userSchema = new mongoose.Schema({
         required:true,
     },
 
+    photo:{
+        type:String,
+        default: 'https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png'
+    },
+
+
 }, {
     timestamps:true
 });
