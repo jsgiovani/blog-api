@@ -1,25 +1,38 @@
 import User from "../models/User.js";
-import { error } from "../utils/errorHandler.js";
+import { error as er } from "../utils/errorHandler.js";
 
 const update = async ( req, res, next ) =>{
-    
-    if (req.user.id !== req.params.id) return next(error(401, 'Unauthorized')); 
+
+    if (req.user.id !== req.params.id) return next(er(401, 'Unauthorized')); 
     
     const options = {new:true};
 
     try {
-        const findUser = await User.findOneAndUpdate(req.body.id,{$set:req.body},options);
+
+
+        const findUser = await User.findOneAndUpdate(req.body.id,{$set:{
+            username:req.body.username,
+            email:req.body.email,
+            password:req.body.password,
+            photo:req.body.photo
+        }},options);
        
+        const {password, __v, ...rest} = findUser._doc;
+
         res.json({
             success:true,
-            data:findUser,
+            data:rest,
             status:204
         });
         
     } catch (error) {
+
+        if (error.code == 11000) {
+            return next(er(401, 'Username not available')); 
+        }
+
         next(error);
     }
-
     
 };
 
