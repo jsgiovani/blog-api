@@ -3,6 +3,7 @@ import dbConnect from './utils/db.js';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './routes/AuthRoutes.js';
+import userRoutes from './routes/UserRoutes.js';
 
 
 
@@ -49,9 +50,9 @@ app.use(cors({
 
 
 
-
 //routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 
 //middleware error
