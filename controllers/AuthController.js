@@ -104,7 +104,7 @@ const google = async(req,res, next) =>{
         
         //if user is found return with token
         if (findUser) {
-            const token = generateJWT(findUser._id);
+            const token = generateJWT(findUser);
             const {password, __v, ...rest} = findUser._doc;
             const user = {...rest, token};
 
@@ -133,7 +133,7 @@ const google = async(req,res, next) =>{
 
 
         //add atribute token to created user
-        const token = generateJWT(request._id);
+        const token = generateJWT(request);
         const user = {...rest, token};
 
         //send response
