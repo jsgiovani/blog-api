@@ -1,6 +1,33 @@
 import User from "../models/User.js";
 import { error as er } from "../utils/errorHandler.js";
 
+
+
+const remove = async (req, res, next) => {
+    if (req.user.id !== req.params.id) return next(er(401, 'Unauthorized'));
+    
+    
+    try {
+        const findUser = await User.findByIdAndDelete(req.params.id);
+
+        if (!findUser) {
+            return next(er(404, 'Not Found')); 
+        }
+
+
+        res.json({
+            success:true,
+            data:{},
+            status:202
+        });
+
+    } catch (error) {
+        next(error);
+    }
+
+
+}
+
 const update = async ( req, res, next ) =>{
 
     if (req.user.id !== req.params.id) return next(er(401, 'Unauthorized')); 
@@ -37,4 +64,4 @@ const update = async ( req, res, next ) =>{
 };
 
 
-export {update};
+export {update, remove };
