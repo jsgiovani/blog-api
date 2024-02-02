@@ -36,6 +36,7 @@ const update = async ( req, res, next ) =>{
 
     try {
 
+   
 
         const findUser = await User.findOneAndUpdate(req.body.id,{$set:{
             username:req.body.username,

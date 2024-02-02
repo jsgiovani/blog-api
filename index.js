@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './routes/AuthRoutes.js';
 import userRoutes from './routes/UserRoutes.js';
+import postRoutes from './routes/PostRoutes.js';
 
 
 
@@ -53,6 +54,7 @@ app.use(cors({
 //routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/posts', postRoutes);
 
 
 //middleware error
