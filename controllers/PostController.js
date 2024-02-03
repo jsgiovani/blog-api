@@ -1,6 +1,60 @@
 import Post from "../models/Post.js";
 import { error } from "../utils/errorHandler.js";
 
+
+const index = async ( req, res, next ) => {
+    try {
+
+        const startIndex = parseInt(req.query.startIndex) || 0;
+        const limit = parseInt(req.query.limit) || 9;
+        const order = req.query.order ==='asc' ? 1:-1 || 1;
+
+        
+
+        const posts = await Post.find({
+            ...(req.query.userId && {userId:req.query.userId}),
+            ...(req.query.category && {category:req.query.category}),
+            ...(req.query.slug && {slug:req.query.slug}),
+            ...(req.query.postId && {_id:req.query.postId}),
+            ...(req.query.searchTerm && {
+                $or:[
+                    {title: {$regex: req.query.searchTerm, $options:'i'}},
+                    {content: {$regex: req.query.searchTerm, $options:'i'}}
+                ],
+            }),
+        }).sort({ updatedAt: order}).skip(startIndex).limit(limit);
+
+        const totalPosts = await Post.countDocuments();
+
+        const now = new Date();
+
+        const oneMonthAgo = new Date(
+            now.getFullYear(),
+            now.getMonth() - 1,
+            now.getDay()
+        );
+
+
+        const lastMonthPosts = await Post.countDocuments({createdAt:{$gte:oneMonthAgo}});
+
+
+        res.json({
+            success:true,
+            data:{
+                posts,
+                totalPosts,
+                lastMonthPosts
+            },
+            status:201
+        });
+
+            
+
+    } catch (error) {
+        next(error);
+    }
+}
+
 //create a new post
 const store = async ( req, res, next) => {
 
@@ -49,4 +103,4 @@ const store = async ( req, res, next) => {
 };
 
 
-export { store };
+export { store, index };
