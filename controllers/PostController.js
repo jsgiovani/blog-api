@@ -103,4 +103,34 @@ const store = async ( req, res, next) => {
 };
 
 
-export { store, index };
+const remove = async ( req, res, next) =>{
+    if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+        return next(error(401, 'Unauthorized, You are not allowed to delete this post'));
+    }
+
+
+
+    try {
+        const findPost = await Post.findByIdAndDelete(req.params.id);
+
+        if (!findPost) {
+            return next(error(404, 'Not Found'));
+        }
+
+
+        res.json({
+            success:true,
+            data:findPost,
+            status:201
+        });
+
+        
+    } catch (error) {
+        next(error);
+    }
+
+    
+
+}
+
+export { store, index, remove };
