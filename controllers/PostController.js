@@ -102,7 +102,7 @@ const store = async ( req, res, next) => {
     
 };
 
-
+ 
 const remove = async ( req, res, next) =>{
     if (!req.user.isAdmin || req.user.id !== req.params.userId) {
         return next(error(401, 'Unauthorized, You are not allowed to delete this post'));
@@ -133,4 +133,42 @@ const remove = async ( req, res, next) =>{
 
 }
 
-export { store, index, remove };
+///api url to update post
+const update = async ( req, res, next ) => {
+
+    const {title, content, category, image} = req.body;
+
+    if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+        return error(401, 'Unauthorized, you are not allowed to update this post')
+    }
+
+    try {
+        const postFound = await Post.findByIdAndUpdate(req.params.id, {
+            $set:{
+                title,
+                content,
+                category,
+                image
+            }
+        } , {new:true});
+
+        if (!postFound) {
+            return next(error(404, 'Not Found'));    
+        }
+
+        res.json({
+            success:true,
+            data:postFound,
+            status:204
+        });
+
+    } catch (error) {
+        next(error);
+    }
+
+
+};
+
+
+
+export { store, index, remove, update };
