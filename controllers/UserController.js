@@ -2,10 +2,9 @@ import User from "../models/User.js";
 import { error as er } from "../utils/errorHandler.js";
 
 
-
+//delete user
 const remove = async (req, res, next) => {
-    if (req.user.id !== req.params.id) return next(er(401, 'Unauthorized'));
-    
+    if (!req.user.isAdmin && req.user.id !== req.params.id) return next(er(401, 'Unauthorized, you are not allowed to delete this account'));
     
     try {
         const findUser = await User.findByIdAndDelete(req.params.id);
@@ -17,8 +16,8 @@ const remove = async (req, res, next) => {
 
         res.json({
             success:true,
-            data:{},
-            status:202
+            data:findUser,
+            status:204
         });
 
     } catch (error) {
@@ -105,7 +104,7 @@ const index = async( req, res, next) => {
         res.json({
             success:true,
             data:{
-                users,
+                users:tempUsers,
                 totalUsers,
                 lastMonthUsers
             },
