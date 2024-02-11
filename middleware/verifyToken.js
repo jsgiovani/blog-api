@@ -23,7 +23,7 @@ const verifyToken = async (req, res, next)=>{
             const findUser = await User.findById(id);
 
             if (!findUser) {
-                return next(error(404, 'Not Found'));
+                return next(error(404, 'User Not Found'));
             }
 
             req.user = findUser;
