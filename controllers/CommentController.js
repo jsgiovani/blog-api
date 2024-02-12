@@ -72,4 +72,65 @@ const indexPostComments = async ( req, res, next) => {
 
 }
 
-export { store, indexPostComments };
+
+const likeOrUnlike = async ( req, res, next ) => {
+
+    const {commentId} = req.params;
+    const {_id:userId} = req.user;
+
+
+    
+    
+    try {
+
+        
+        //verify if comment exists
+        const findComment =  await Comment.findById(commentId);
+        if (!findComment) {
+            return next(error(404, 'Post Not Found'));
+        }
+        
+        
+        const { numberLikes, likes } = findComment._doc;
+
+
+        let action;
+        
+        const isLiked = likes.some(like => like === userId.toString());
+
+
+        if (isLiked) {
+
+            const newLikes = likes.filter(like => like !== userId.toString())
+            findComment.likes = newLikes;
+            findComment.numberLikes = numberLikes > 0 ? numberLikes - 1 : 0;
+            action = false;
+
+            
+        }else{
+            findComment.likes = [...likes, userId.toString() ]
+            findComment.numberLikes = numberLikes + 1;
+            action = true;
+        }
+
+
+        const request = await findComment.save();
+
+
+        res.json({
+            success:true,
+            data:{
+                comment:request,
+                like:action
+            },
+
+            status:200
+        });
+        
+    } catch (error) {
+        next(error);
+    }
+
+}
+
+export { store, indexPostComments, likeOrUnlike };
