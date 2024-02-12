@@ -118,5 +118,34 @@ const index = async( req, res, next) => {
 
 }
 
+const show = async ( req, res, next ) => {
+    const {id} = req.params;
 
-export { index, update, remove };
+
+
+    
+    try {
+
+
+        const findUser = await User.findById(id);
+
+        if (!findUser) {
+            return next(er(404, 'User Not Found'))
+        }
+
+
+        const {password, isAdmin, __v,  ...rest} = findUser._doc;
+
+
+
+        res.json({
+            success:true,
+            data:rest,
+            status:200
+        });
+    } catch (error) {
+        next(error)
+    }
+}
+
+export { index, update, remove, show };

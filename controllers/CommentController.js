@@ -44,5 +44,32 @@ const store = async(req,res,next)=>{
     }
 };
 
+const indexPostComments = async ( req, res, next) => {
+    const {postId} = req.params;
 
-export {store};
+    try {
+
+        const findPost = await Post.findById(postId);
+
+
+        if (!findPost) {
+            return next(error(404, 'Post Not Found'));
+        }
+
+
+        const postComments = await Comment.find({postId}).sort({createdAt: -1});
+
+
+        res.json({
+            success:true,
+            data:postComments,
+            status:200
+        });
+
+    } catch (error) {
+        next(error)
+    }
+
+}
+
+export { store, indexPostComments };
