@@ -78,9 +78,6 @@ const likeOrUnlike = async ( req, res, next ) => {
     const {commentId} = req.params;
     const {_id:userId} = req.user;
 
-
-    
-    
     try {
 
         
@@ -133,4 +130,32 @@ const likeOrUnlike = async ( req, res, next ) => {
 
 }
 
-export { store, indexPostComments, likeOrUnlike };
+
+const remove = async ( req, res, next) => {
+    const { commentId, userId } = req.params;
+    const { _id, isAdmin } = req.user;
+
+    if (!isAdmin || userId != _id ) {
+        return next(error(401, 'You are not allowed to delete this comment'));
+    }
+
+    try {
+        const findComment = await Comment.findByIdAndDelete(commentId);
+
+        if (!findComment) {
+            return next(error(404, 'Comment Not Found'));
+        }
+
+        res.json({
+            success:true,
+            data:[],
+            status:200
+        });
+
+        
+    } catch (error) {
+        next(error)
+    }
+}
+
+export { store, indexPostComments, likeOrUnlike, remove };
