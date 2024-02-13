@@ -1,5 +1,5 @@
 import express from "express";
-import { indexPostComments, likeOrUnlike, remove, store } from "../controllers/CommentController.js";
+import { indexPostComments, likeOrUnlike, remove, store, update } from "../controllers/CommentController.js";
 import verifyToken from "../middleware/verifyToken.js";
 
 
@@ -9,5 +9,6 @@ router.post('/:postId',verifyToken,  store);
 router.get('/:postId',  indexPostComments);
 router.post('/likes/:commentId', verifyToken,  likeOrUnlike);
 router.delete('/:commentId/:userId',  verifyToken, remove);
+router.put('/:commentId/:userId',  verifyToken, update);
 
 export default router;

@@ -158,4 +158,41 @@ const remove = async ( req, res, next) => {
     }
 }
 
-export { store, indexPostComments, likeOrUnlike, remove };
+
+const update = async ( req, res, next ) => {
+
+
+
+    const { commentId, userId } = req.params;
+    const { content } = req.body;
+
+    const { _id, isAdmin } = req.user;
+ 
+
+
+    if (!isAdmin && _id!== userId  ) {
+        return next(error(401, 'You are not allowed to update this comment'));
+    }
+
+    
+    try {
+        const findComment = await Comment.findByIdAndUpdate(commentId,{content}, {new:true});
+
+        if (!findComment) {
+            return next(error(404, 'Comment Not Found'));
+        }
+
+        res.json({
+            success:true,
+            data:findComment,
+            status:204
+        });
+
+        
+    } catch (error) {
+        next(error)
+    }
+
+}
+
+export { store, indexPostComments, likeOrUnlike, remove, update };
