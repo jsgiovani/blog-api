@@ -195,4 +195,52 @@ const update = async ( req, res, next ) => {
 
 }
 
-export { store, indexPostComments, likeOrUnlike, remove, update };
+
+const index = async ( req, res, next) => {
+
+    if (!req.user.isAdmin) {
+        return next(error(404, 'Not Allowed to get comments'));
+    }
+
+
+    try {
+
+        const startIndex = parseInt(req.query.startIndex) || 0;
+        const limit = parseInt(req.query.limit) || 9;
+        const order = req.query.order ==='asc' ? 1:-1 || 1;
+
+        const comments = await Comment.find().sort({createdAt:order}).skip(startIndex).limit(limit);
+
+
+
+        const totalComments = await Comment.countDocuments();
+
+        const now = new Date();
+
+        const oneMonthAgo = new Date(
+            now.getFullYear(),
+            now.getMonth() - 1,
+            now.getDay()
+        );
+
+
+        const lastMonthComments = await Comment.countDocuments({createdAt:{$gte:oneMonthAgo}});
+
+
+        res.json({
+            success:true,
+            data:{
+                comments,
+                totalComments,
+                lastMonthComments
+            },
+            status:200
+        });
+
+    } catch (error) {
+        next(error)
+    }
+
+}
+
+export { store, indexPostComments, likeOrUnlike, remove, update, index };
